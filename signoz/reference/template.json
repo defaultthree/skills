@@ -1,221 +1,593 @@
 {
-    "description": "Dashboard description",
-    "layout": [
-        {
-            "h": 1,
-            "i": "row-section1",
-            "minH": 1,
-            "minW": 12,
-            "w": 12,
-            "x": 0,
-            "y": 0
-        },
-        { "h": 3, "i": "value-panel-1", "w": 3, "x": 0, "y": 1 },
-        { "h": 3, "i": "value-panel-2", "w": 3, "x": 3, "y": 1 },
-        { "h": 6, "i": "graph-panel-1", "w": 6, "x": 0, "y": 4 },
-        { "h": 6, "i": "graph-panel-2", "w": 6, "x": 6, "y": 4 }
-    ],
-    "name": "Dashboard Name",
-    "tags": ["tag1", "tag2"],
-    "variables": {
-        "variable-id": {
-            "name": "variable_name",
-            "type": "QUERY",
-            "queryValue": "SELECT DISTINCT label FROM metrics WHERE ...",
-            "selectedValue": "",
-            "multiSelect": false
-        }
+  "title": "Dashboard Title (use 'title', NOT 'name')",
+  "description": "Dashboard description",
+  "tags": ["tag1", "tag2"],
+  "version": "v4",
+  "uploadedGrafana": false,
+  "image": "",
+  "layout": [
+    {"h": 1, "i": "row-overview", "minH": 1, "minW": 12, "maxH": 1, "moved": false, "static": false, "w": 12, "x": 0, "y": 0},
+    {"h": 3, "i": "value-panel-1", "minH": 1, "minW": 1, "moved": false, "static": false, "w": 3, "x": 0, "y": 1},
+    {"h": 3, "i": "value-panel-2", "minH": 1, "minW": 1, "moved": false, "static": false, "w": 3, "x": 3, "y": 1},
+    {"h": 6, "i": "graph-panel-1", "minH": 1, "minW": 1, "moved": false, "static": false, "w": 6, "x": 0, "y": 4},
+    {"h": 6, "i": "graph-panel-2", "minH": 1, "minW": 1, "moved": false, "static": false, "w": 6, "x": 6, "y": 4},
+    {"h": 6, "i": "graph-histogram", "minH": 1, "minW": 1, "moved": false, "static": false, "w": 12, "x": 0, "y": 10},
+    {"h": 6, "i": "table-panel", "minH": 1, "minW": 1, "moved": false, "static": false, "w": 6, "x": 0, "y": 16},
+    {"h": 6, "i": "pie-panel", "minH": 1, "minW": 1, "moved": false, "static": false, "w": 6, "x": 6, "y": 16},
+    {"h": 6, "i": "bar-panel", "minH": 1, "minW": 1, "moved": false, "static": false, "w": 6, "x": 0, "y": 22},
+    {"h": 6, "i": "histogram-panel", "minH": 1, "minW": 1, "moved": false, "static": false, "w": 6, "x": 6, "y": 22},
+    {"h": 6, "i": "list-panel", "minH": 1, "minW": 1, "moved": false, "static": false, "w": 12, "x": 0, "y": 28}
+  ],
+  "panelMap": {
+    "row-overview": {
+      "collapsed": false,
+      "widgets": [
+        {"h": 3, "i": "value-panel-1", "moved": false, "static": false, "w": 3, "x": 0, "y": 1},
+        {"h": 3, "i": "value-panel-2", "moved": false, "static": false, "w": 3, "x": 3, "y": 1}
+      ]
+    }
+  },
+  "variables": {
+    "service-name-var": {
+      "id": "service-name-var",
+      "name": "service_name",
+      "type": "QUERY",
+      "queryValue": "SELECT DISTINCT JSONExtractString(labels, 'service_name') FROM signoz_metrics.distributed_time_series_v4_1day WHERE metric_name = 'your_metric'",
+      "selectedValue": "",
+      "multiSelect": true,
+      "showALLOption": true,
+      "allSelected": true,
+      "sort": "ASC",
+      "order": 0,
+      "description": "",
+      "customValue": "",
+      "textboxValue": ""
+    }
+  },
+  "widgets": [
+    {
+      "id": "row-overview",
+      "panelTypes": "row",
+      "title": "Section: Overview",
+      "query": {}
     },
-    "version": "v4",
-    "widgets": [
+    {
+      "id": "value-panel-1",
+      "panelTypes": "value",
+      "title": "Value Panel (latest reading)",
+      "description": "Single value reduced to latest",
+      "isStacked": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "thresholds": [
         {
-            "id": "row-section1",
-            "panelTypes": "row",
-            "title": "Section Title"
-        },
-        {
-            "id": "value-panel-1",
-            "panelTypes": "value",
-            "title": "Panel Title",
-            "description": "Panel description",
-            "query": {
-                "builder": {
-                    "queryData": [
-                        {
-                            "aggregateAttribute": {
-                                "dataType": "float64",
-                                "id": "metric_name--float64--Gauge--true",
-                                "isColumn": true,
-                                "key": "metric_name",
-                                "type": "Gauge"
-                            },
-                            "aggregateOperator": "avg",
-                            "dataSource": "metrics",
-                            "disabled": false,
-                            "expression": "A",
-                            "filters": {
-                                "items": [],
-                                "op": "AND"
-                            },
-                            "functions": [],
-                            "groupBy": [],
-                            "having": [],
-                            "legend": "",
-                            "limit": null,
-                            "orderBy": [],
-                            "queryName": "A",
-                            "reduceTo": "latest",
-                            "spaceAggregation": "avg",
-                            "stepInterval": 60,
-                            "timeAggregation": "latest"
-                        }
-                    ],
-                    "queryFormulas": []
-                },
-                "clickhouse_sql": [
-                    {
-                        "disabled": false,
-                        "legend": "",
-                        "name": "A",
-                        "query": ""
-                    }
-                ],
-                "id": "query-id",
-                "promql": [
-                    {
-                        "disabled": false,
-                        "legend": "",
-                        "name": "A",
-                        "query": ""
-                    }
-                ],
-                "queryType": "builder"
-            },
-            "yAxisUnit": "none"
-        },
-        {
-            "id": "graph-panel-1",
-            "panelTypes": "graph",
-            "title": "Time Series Panel",
-            "description": "",
-            "bucketCount": 30,
-            "bucketWidth": 0,
-            "columnUnits": {},
-            "fillSpans": false,
-            "isStacked": false,
-            "mergeAllActiveQueries": false,
-            "nullZeroValues": "zero",
-            "opacity": "1",
-            "query": {
-                "builder": {
-                    "queryData": [
-                        {
-                            "aggregateAttribute": {
-                                "dataType": "float64",
-                                "id": "metric_name--float64--Sum--true",
-                                "isColumn": true,
-                                "isJSON": false,
-                                "key": "metric_name",
-                                "type": "Sum"
-                            },
-                            "aggregateOperator": "rate",
-                            "dataSource": "metrics",
-                            "disabled": false,
-                            "expression": "A",
-                            "filters": {
-                                "items": [
-                                    {
-                                        "id": "filter-id",
-                                        "key": {
-                                            "dataType": "string",
-                                            "id": "label_name--string--tag--false",
-                                            "isColumn": false,
-                                            "isJSON": false,
-                                            "key": "label_name",
-                                            "type": "tag"
-                                        },
-                                        "op": "=",
-                                        "value": "filter_value"
-                                    }
-                                ],
-                                "op": "AND"
-                            },
-                            "functions": [],
-                            "groupBy": [
-                                {
-                                    "dataType": "string",
-                                    "id": "group_label--string--tag--false",
-                                    "isColumn": false,
-                                    "isJSON": false,
-                                    "key": "group_label",
-                                    "type": "tag"
-                                }
-                            ],
-                            "having": [],
-                            "legend": "{{group_label}}",
-                            "limit": null,
-                            "orderBy": [],
-                            "queryName": "A",
-                            "reduceTo": "avg",
-                            "spaceAggregation": "sum",
-                            "stepInterval": 60,
-                            "timeAggregation": "rate"
-                        }
-                    ],
-                    "queryFormulas": []
-                },
-                "clickhouse_sql": [
-                    {
-                        "disabled": false,
-                        "legend": "",
-                        "name": "A",
-                        "query": ""
-                    }
-                ],
-                "id": "query-id",
-                "promql": [
-                    {
-                        "disabled": false,
-                        "legend": "",
-                        "name": "A",
-                        "query": ""
-                    }
-                ],
-                "queryType": "builder"
-            },
-            "selectedLogFields": [
-                { "dataType": "string", "name": "body", "type": "" },
-                { "dataType": "string", "name": "timestamp", "type": "" }
-            ],
-            "selectedTracesFields": [
-                {
-                    "dataType": "string",
-                    "id": "serviceName--string--tag--true",
-                    "isColumn": true,
-                    "key": "serviceName",
-                    "type": "tag"
-                },
-                {
-                    "dataType": "string",
-                    "id": "name--string--tag--true",
-                    "isColumn": true,
-                    "key": "name",
-                    "type": "tag"
-                },
-                {
-                    "dataType": "float64",
-                    "id": "durationNano--float64--tag--true",
-                    "isColumn": true,
-                    "key": "durationNano",
-                    "type": "tag"
-                }
-            ],
-            "softMax": 0,
-            "softMin": 0,
-            "stackedBarChart": false,
-            "thresholds": [],
-            "timePreference": "GLOBAL_TIME",
-            "yAxisUnit": "reqps"
+          "index": "threshold-1",
+          "isEditEnabled": false,
+          "keyIndex": 0,
+          "selectedGraph": "value",
+          "thresholdColor": "Red",
+          "thresholdFormat": "Text",
+          "thresholdLabel": "High",
+          "thresholdOperator": ">",
+          "thresholdTableOptions": "A",
+          "thresholdUnit": "none",
+          "thresholdValue": 100
         }
-    ]
+      ],
+      "timePreferance": "GLOBAL_TIME",
+      "yAxisUnit": "none",
+      "query": {
+        "builder": {
+          "queryData": [
+            {
+              "aggregateAttribute": {"dataType": "float64", "id": "metric_name--float64--Gauge--true", "isColumn": true, "isJSON": false, "key": "metric_name", "type": "Gauge"},
+              "aggregateOperator": "avg",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "A",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [],
+              "having": [],
+              "legend": "",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "A",
+              "reduceTo": "latest",
+              "spaceAggregation": "avg",
+              "stepInterval": 60,
+              "timeAggregation": "latest"
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "promql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "queryType": "builder"
+      }
+    },
+    {
+      "id": "value-panel-2",
+      "panelTypes": "value",
+      "title": "Value Panel (formula)",
+      "description": "Success rate via A / B * 100",
+      "isStacked": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "thresholds": [],
+      "timePreferance": "GLOBAL_TIME",
+      "yAxisUnit": "percent",
+      "query": {
+        "builder": {
+          "queryData": [
+            {
+              "aggregateAttribute": {"dataType": "float64", "id": "requests_total--float64--Sum--true", "isColumn": true, "key": "requests_total", "type": "Sum"},
+              "aggregateOperator": "sum",
+              "dataSource": "metrics",
+              "disabled": true,
+              "expression": "A",
+              "filters": {"items": [{"id": "ok", "key": {"dataType": "string", "id": "status--string--tag--false", "isColumn": false, "key": "status", "type": "tag"}, "op": "=", "value": "success"}], "op": "AND"},
+              "functions": [],
+              "groupBy": [],
+              "having": [],
+              "legend": "",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "A",
+              "reduceTo": "sum",
+              "spaceAggregation": "sum",
+              "stepInterval": 60,
+              "timeAggregation": "rate"
+            },
+            {
+              "aggregateAttribute": {"dataType": "float64", "id": "requests_total--float64--Sum--true", "isColumn": true, "key": "requests_total", "type": "Sum"},
+              "aggregateOperator": "sum",
+              "dataSource": "metrics",
+              "disabled": true,
+              "expression": "B",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [],
+              "having": [],
+              "legend": "",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "B",
+              "reduceTo": "sum",
+              "spaceAggregation": "sum",
+              "stepInterval": 60,
+              "timeAggregation": "rate"
+            }
+          ],
+          "queryFormulas": [
+            {"disabled": false, "expression": "A / B * 100", "legend": "Success %", "name": "F1", "queryName": "F1"}
+          ]
+        },
+        "clickhouse_sql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "promql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "queryType": "builder"
+      }
+    },
+    {
+      "id": "graph-panel-1",
+      "panelTypes": "graph",
+      "title": "Graph Panel (Counter rate, JSON value is 'graph' even though docs call it 'Timeseries')",
+      "description": "",
+      "fillSpans": false,
+      "isStacked": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMin": 0,
+      "softMax": 0,
+      "thresholds": [
+        {"color": "#EF4444", "label": "Alert", "value": 100, "isEditEnabled": false}
+      ],
+      "timePreferance": "GLOBAL_TIME",
+      "yAxisUnit": "reqps",
+      "query": {
+        "builder": {
+          "queryData": [
+            {
+              "aggregateAttribute": {"dataType": "float64", "id": "http_requests_total--float64--Sum--true", "isColumn": true, "isJSON": false, "key": "http_requests_total", "type": "Sum"},
+              "aggregateOperator": "rate",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "A",
+              "filters": {
+                "items": [
+                  {"id": "svc-filter", "key": {"dataType": "string", "id": "service_name--string--tag--false", "isColumn": false, "isJSON": false, "key": "service_name", "type": "tag"}, "op": "in", "value": ["{{.service_name}}"]}
+                ],
+                "op": "AND"
+              },
+              "functions": [],
+              "groupBy": [
+                {"dataType": "string", "id": "status--string--tag--false", "isColumn": false, "isJSON": false, "key": "status", "type": "tag"}
+              ],
+              "having": [],
+              "legend": "{{status}}",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "A",
+              "reduceTo": "avg",
+              "spaceAggregation": "sum",
+              "stepInterval": 60,
+              "timeAggregation": "rate"
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "promql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "queryType": "builder"
+      }
+    },
+    {
+      "id": "graph-panel-2",
+      "panelTypes": "graph",
+      "title": "Graph Panel (Gauge avg)",
+      "description": "Per-host CPU usage",
+      "fillSpans": false,
+      "isStacked": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMin": 0,
+      "softMax": 100,
+      "thresholds": [],
+      "timePreferance": "GLOBAL_TIME",
+      "yAxisUnit": "percent",
+      "query": {
+        "builder": {
+          "queryData": [
+            {
+              "aggregateAttribute": {"dataType": "float64", "id": "system_cpu_utilization--float64--Gauge--true", "isColumn": true, "isJSON": false, "key": "system_cpu_utilization", "type": "Gauge"},
+              "aggregateOperator": "avg",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "A",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [
+                {"dataType": "string", "id": "host_name--string--tag--false", "isColumn": false, "isJSON": false, "key": "host_name", "type": "tag"}
+              ],
+              "having": [],
+              "legend": "{{host_name}}",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "A",
+              "reduceTo": "avg",
+              "spaceAggregation": "avg",
+              "stepInterval": 60,
+              "timeAggregation": "avg"
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "promql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "queryType": "builder"
+      }
+    },
+    {
+      "id": "graph-histogram",
+      "panelTypes": "graph",
+      "title": "Graph Panel (OTel Histogram percentiles P50/P90/P99)",
+      "description": "REQUIRED: see panel-types.md — key.bucket suffix, aggregateOperator=count, spaceAggregation=p50/p90/p99",
+      "fillSpans": false,
+      "isStacked": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMin": 0,
+      "softMax": 0,
+      "thresholds": [],
+      "timePreferance": "GLOBAL_TIME",
+      "yAxisUnit": "ms",
+      "query": {
+        "builder": {
+          "queryData": [
+            {
+              "aggregateAttribute": {"dataType": "float64", "id": "request_duration_ms.bucket--float64--Histogram--true", "isColumn": true, "isJSON": false, "key": "request_duration_ms.bucket", "type": "Histogram"},
+              "aggregateOperator": "count",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "A",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [],
+              "having": [],
+              "legend": "P50",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "A",
+              "reduceTo": "avg",
+              "spaceAggregation": "p50",
+              "stepInterval": 60,
+              "timeAggregation": "rate"
+            },
+            {
+              "aggregateAttribute": {"dataType": "float64", "id": "request_duration_ms.bucket--float64--Histogram--true", "isColumn": true, "isJSON": false, "key": "request_duration_ms.bucket", "type": "Histogram"},
+              "aggregateOperator": "count",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "B",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [],
+              "having": [],
+              "legend": "P90",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "B",
+              "reduceTo": "avg",
+              "spaceAggregation": "p90",
+              "stepInterval": 60,
+              "timeAggregation": "rate"
+            },
+            {
+              "aggregateAttribute": {"dataType": "float64", "id": "request_duration_ms.bucket--float64--Histogram--true", "isColumn": true, "isJSON": false, "key": "request_duration_ms.bucket", "type": "Histogram"},
+              "aggregateOperator": "count",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "C",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [],
+              "having": [],
+              "legend": "P99",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "C",
+              "reduceTo": "avg",
+              "spaceAggregation": "p99",
+              "stepInterval": 60,
+              "timeAggregation": "rate"
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "promql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "queryType": "builder"
+      }
+    },
+    {
+      "id": "table-panel",
+      "panelTypes": "table",
+      "title": "Table Panel (groupBy rows + columnWidths)",
+      "description": "Aggregate by service + status_code",
+      "columnUnits": {"A": "short"},
+      "columnWidths": {"A": 145, "service_name": 200, "status_code": 120},
+      "decimalPrecision": 2,
+      "fillSpans": false,
+      "isStacked": false,
+      "legendPosition": "bottom",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "thresholds": [],
+      "timePreferance": "GLOBAL_TIME",
+      "yAxisUnit": "none",
+      "query": {
+        "builder": {
+          "queryData": [
+            {
+              "aggregateAttribute": {"dataType": "float64", "id": "http_requests_total--float64--Sum--true", "isColumn": true, "key": "http_requests_total", "type": "Sum"},
+              "aggregateOperator": "sum",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "A",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [
+                {"dataType": "string", "id": "service_name--string--tag--false", "isColumn": false, "key": "service_name", "type": "tag"},
+                {"dataType": "string", "id": "status_code--string--tag--false", "isColumn": false, "key": "status_code", "type": "tag"}
+              ],
+              "having": [],
+              "legend": "",
+              "limit": null,
+              "orderBy": [{"columnName": "A", "order": "desc"}],
+              "queryName": "A",
+              "reduceTo": "sum",
+              "spaceAggregation": "sum",
+              "stepInterval": 60,
+              "timeAggregation": "rate"
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "promql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "queryType": "builder"
+      }
+    },
+    {
+      "id": "pie-panel",
+      "panelTypes": "pie",
+      "title": "Pie Panel (REQUIRES groupBy)",
+      "description": "Errors share by service",
+      "decimalPrecision": 2,
+      "legendPosition": "bottom",
+      "customLegendColors": {},
+      "isStacked": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "thresholds": [],
+      "timePreferance": "GLOBAL_TIME",
+      "yAxisUnit": "none",
+      "query": {
+        "builder": {
+          "queryData": [
+            {
+              "aggregateAttribute": {"dataType": "float64", "id": "http_errors_total--float64--Sum--true", "isColumn": true, "key": "http_errors_total", "type": "Sum"},
+              "aggregateOperator": "sum",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "A",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [
+                {"dataType": "string", "id": "service_name--string--tag--false", "isColumn": false, "key": "service_name", "type": "tag"}
+              ],
+              "having": [],
+              "legend": "{{service_name}}",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "A",
+              "reduceTo": "sum",
+              "spaceAggregation": "sum",
+              "stepInterval": 60,
+              "timeAggregation": "rate"
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "promql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "queryType": "builder"
+      }
+    },
+    {
+      "id": "bar-panel",
+      "panelTypes": "bar",
+      "title": "Bar Panel (stacked categories)",
+      "description": "Tokens by type",
+      "isStacked": true,
+      "stackedBarChart": true,
+      "fillSpans": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "thresholds": [],
+      "timePreferance": "GLOBAL_TIME",
+      "yAxisUnit": "short",
+      "query": {
+        "builder": {
+          "queryData": [
+            {
+              "aggregateAttribute": {"dataType": "float64", "id": "token_usage--float64--Sum--true", "isColumn": true, "key": "token_usage", "type": "Sum"},
+              "aggregateOperator": "sum",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "A",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [
+                {"dataType": "string", "id": "type--string--tag--false", "isColumn": false, "key": "type", "type": "tag"}
+              ],
+              "having": [],
+              "legend": "{{type}}",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "A",
+              "reduceTo": "sum",
+              "spaceAggregation": "sum",
+              "stepInterval": 60,
+              "timeAggregation": "sum"
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "promql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "queryType": "builder"
+      }
+    },
+    {
+      "id": "histogram-panel",
+      "panelTypes": "histogram",
+      "title": "Histogram Panel (frequency distribution — distinct from OTel Histogram metric)",
+      "description": "Distribution of any numeric metric across buckets",
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "thresholds": [],
+      "timePreferance": "GLOBAL_TIME",
+      "yAxisUnit": "short",
+      "query": {
+        "builder": {
+          "queryData": [
+            {
+              "aggregateAttribute": {"dataType": "float64", "id": "response_size_bytes--float64--Gauge--true", "isColumn": true, "key": "response_size_bytes", "type": "Gauge"},
+              "aggregateOperator": "avg",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "A",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [],
+              "having": [],
+              "legend": "",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "A",
+              "reduceTo": "avg",
+              "spaceAggregation": "avg",
+              "stepInterval": 60,
+              "timeAggregation": "avg"
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "promql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "queryType": "builder"
+      }
+    },
+    {
+      "id": "list-panel",
+      "panelTypes": "list",
+      "title": "List Panel (logs/traces only)",
+      "description": "Most recent error spans",
+      "columnWidths": {"service.name": 145, "name": 200, "duration_nano": 145, "response_status_code": 120, "timestamp": 200},
+      "decimalPrecision": 2,
+      "legendPosition": "bottom",
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "thresholds": [],
+      "timePreferance": "GLOBAL_TIME",
+      "yAxisUnit": "none",
+      "selectedTracesFields": [
+        {"fieldContext": "resource", "fieldDataType": "string", "name": "service.name", "signal": "traces"},
+        {"fieldContext": "span", "fieldDataType": "string", "name": "name", "signal": "traces"},
+        {"fieldContext": "span", "fieldDataType": "", "name": "duration_nano", "signal": "traces"},
+        {"fieldContext": "span", "fieldDataType": "", "name": "response_status_code", "signal": "traces"}
+      ],
+      "query": {
+        "builder": {
+          "queryData": [
+            {
+              "dataSource": "traces",
+              "disabled": false,
+              "expression": "A",
+              "filters": {
+                "items": [
+                  {"id": "err-filter", "key": {"dataType": "bool", "id": "has_error--bool--tag--false", "isColumn": false, "key": "has_error", "type": "tag"}, "op": "=", "value": "true"}
+                ],
+                "op": "AND"
+              },
+              "functions": [],
+              "groupBy": [],
+              "having": [],
+              "legend": "",
+              "limit": null,
+              "offset": 0,
+              "orderBy": [{"columnName": "timestamp", "order": "desc"}],
+              "pageSize": 10,
+              "queryName": "A",
+              "selectColumns": [
+                {"fieldContext": "resource", "fieldDataType": "string", "name": "service.name", "signal": "traces"},
+                {"fieldContext": "span", "fieldDataType": "string", "name": "name", "signal": "traces"},
+                {"fieldContext": "span", "fieldDataType": "", "name": "duration_nano", "signal": "traces"},
+                {"fieldContext": "span", "fieldDataType": "", "name": "response_status_code", "signal": "traces"}
+              ],
+              "stepInterval": null
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "promql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "queryType": "builder"
+      }
+    }
+  ]
 }
