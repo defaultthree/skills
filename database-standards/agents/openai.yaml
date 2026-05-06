@@ -1,0 +1,4 @@
+interface:
+  display_name: "数据库标准"
+  short_description: "生成数据库 SQL、方案与标准"
+  default_prompt: "Use $database-standards to prepare DBW-ready database SQL, plans, or standards for a platform such as PostgreSQL, without directly executing any changes."
