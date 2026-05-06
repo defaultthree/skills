@@ -90,6 +90,45 @@ ALTER DEFAULT PRIVILEGES FOR ROLE legacy ...
 
 只对 `admin` 配默认权限，不会影响 `legacy` 新建对象。
 
+### 4. 仅在 owner 替换或 owner 收敛时，必须按三阶段执行
+
+只要需求里出现数据库、schema、表、序列、函数等对象的 owner 替换或 owner 收敛，就必须拆成三阶段 DBW 工单，不能压成一条 SQL 或一个 DBW 工单。
+
+以下情况视为命中：
+
+- 明确要求把 owner 从角色 A 改到角色 B
+- 明确要求把 owner 收敛到 `admin`
+- SQL 中出现 `ALTER DATABASE ... OWNER`
+- SQL 中出现 `ALTER SCHEMA ... OWNER`
+- SQL 中出现 `ALTER TABLE ... OWNER`
+- SQL 中出现 `ALTER SEQUENCE ... OWNER`
+- SQL 中出现 `ALTER FUNCTION ... OWNER`
+- SQL 中出现 `REASSIGN OWNED`
+
+如果请求不涉及 owner 替换或 owner 收敛，则不强制套用三阶段。
+
+固定采用三阶段 DBW 工单：
+
+1. 先补业务账号对现有对象的显式权限
+2. 再切数据库和 schema owner
+3. 再补 `admin` 的默认权限、按需回收业务账号的 `CREATE`，并单独处理历史对象 owner 收敛
+
+这样做的核心目的，是先把业务访问能力从“依赖 owner 身份”改成“依赖显式 GRANT”，再处理 ownership。
+
+### 5. `REASSIGN OWNED` 必须归入第三阶段
+
+`REASSIGN OWNED BY legacy TO admin` 的作用范围是：
+
+- 当前数据库内该角色拥有的全部对象
+- 不只限于 `public` schema
+
+因此：
+
+- 当需求是 owner 替换或 owner 收敛时，`REASSIGN OWNED` 不得放进第二阶段的数据库级 owner 切换工单
+- 只有在第三阶段，并且已经完成对象盘点后，才应提议使用
+- 如果对象范围不清楚，也必须继续留在第三阶段或后续单独工单，不得与数据库级 owner 切换一起执行
+- 最终输出默认必须包含完整三阶段，不能只给第二阶段或第二、三阶段的裁剪版方案
+
 ---
 
 ## 五、命名规范
@@ -623,12 +662,14 @@ SQL解释：
 影响范围：
 
 - 直接修改 ownership
+- `REASSIGN OWNED` 影响当前数据库内该角色拥有的全部对象，不限于 `public`
 - 会影响后续谁能做 DDL、谁的默认权限生效
 - 不会自动替你重写应用连接串，但会改变管理边界
 
 注意事项：
 
 - `REASSIGN OWNED` 通常要求高权限，托管实例上常需要管理员配合
+- 如果当前目标是“不影响业务”或“尽量不停服”，不要默认把这一段与数据库级 owner 切换放在同一工单
 - 执行前要确认 `legacy` 下是否还有不应迁移的对象
 - owner 迁移后要立即补标准默认权限，避免新对象授权断层
 
@@ -643,6 +684,38 @@ SQL解释：
 - `REASSIGN OWNED` 要在目标数据库内执行
 - 执行者通常需要足够高的权限
 - 托管 PostgreSQL 场景下，往往需要实例管理员配合
+
+### Phase 4A：低风险第一阶段，只切数据库与 schema owner
+
+当优先目标是“先不影响业务，再逐步治理历史 owner”时，建议先执行：
+
+```sql
+ALTER DATABASE tcgadmin OWNER TO admin;
+ALTER SCHEMA public OWNER TO admin;
+```
+
+SQL解释：
+
+- 只切换数据库对象和 `public` schema 的 owner 到 `admin`
+- 不在这一阶段迁移现有表、序列、函数等历史对象 owner
+
+影响范围：
+
+- 只影响数据库级与 schema 级 ownership
+- 不修改现有表、序列、函数的 owner
+- 业务账号如果已提前补齐显式权限，通常可以持续正常读写
+
+注意事项：
+
+- 这不是完整 owner 收敛，只是低风险第一阶段
+- 后续仍应盘点历史对象 owner，并决定是否进入全量 owner 迁移
+- 如果业务 schema 不是 `public`，需替换为实际 schema
+
+回滚建议：
+
+- 执行 `ALTER DATABASE tcgadmin OWNER TO <old_owner>`
+- 执行 `ALTER SCHEMA public OWNER TO <old_owner>`
+- 回滚前确认切换后没有新增依赖 `admin` ownership 的管理动作
 
 ### Phase 5：owner 收敛后，切回标准默认权限
 
