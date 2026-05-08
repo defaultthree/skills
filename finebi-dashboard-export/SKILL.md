@@ -19,9 +19,9 @@ description: 使用 FineBI Web 集成接口导出公共目录仪表板页签为 
 - 新增、重命名或更新受控测试数据集
 - 新建、重命名或另存为受控测试仪表板
 
-## 项目文件要求
+## 配置文件要求
 
-项目根目录需要有 `.env`。同一个工作区支持多套 FineBI 配置，使用环境前缀区分：
+默认配置文件放在用户目录下的 `~/.config/finebi/.env`，不要依赖 Cursor、项目根目录或某个 Skill 安装路径。同一台机器支持多套 FineBI 配置，使用环境前缀区分：
 
 ```text
 FINEBI_PROFILE=cn
@@ -37,13 +37,13 @@ FINEBI_JP_PASSWORD=...
 
 脚本也兼容 `cn.host`、`cn_host`、`FINEBI_CN_HOST` 这类写法。命令行传 `--profile cn` 或 `--profile jp` 时，会优先使用对应 profile；不传时使用 `FINEBI_PROFILE`，再回退到旧的无前缀配置。
 
+如果必须临时使用其他配置文件，命令行传 `--config /path/to/.env`。不要在回复或日志里打印 `.env` 中的敏感信息。
+
 当用户用自然语言指定环境时，按下面规则选择 profile：
 
 - “中国 BI”“国内 BI”“中国 FineBI”使用 `--profile cn`
 - “日本 BI”“日本 FineBI”使用 `--profile jp`
 - 脚本也接受 `--profile 中国`、`--profile 日本`、`--profile china`、`--profile japan`，会自动归一到 `cn` 或 `jp`
-
-不要在回复或日志里打印 `.env` 中的敏感信息。
 
 ## 认证方式
 
@@ -172,26 +172,26 @@ SQL 数据集新增请求示例：
 
 ## 脚本
 
-使用项目内脚本：
+使用脚本时不要依赖任何特定工具目录；按实际路径调用即可：
 
 ```bash
-python ".cursor/skills/finebi-dashboard-export/scripts/export_finebi_excel.py" --entry "月度复盘表" --report "总表"
+python "finebi-dashboard-export/scripts/export_finebi_excel.py" --entry "月度复盘表" --report "总表"
 ```
 
 指定中国或日本环境：
 
 ```bash
-python ".cursor/skills/finebi-dashboard-export/scripts/export_finebi_excel.py" --profile cn --entry "月度复盘表" --report "总表"
-python ".cursor/skills/finebi-dashboard-export/scripts/export_finebi_excel.py" --profile jp --entry "月度复盘表" --report "总表"
+python "finebi-dashboard-export/scripts/export_finebi_excel.py" --profile cn --entry "月度复盘表" --report "总表"
+python "finebi-dashboard-export/scripts/export_finebi_excel.py" --profile jp --entry "月度复盘表" --report "总表"
 ```
 
 只查看某个公共目录下可导出的页签，不导出文件：
 
 ```bash
-python ".cursor/skills/finebi-dashboard-export/scripts/export_finebi_excel.py" --entry "月度复盘表" --list
+python "finebi-dashboard-export/scripts/export_finebi_excel.py" --entry "月度复盘表" --list
 ```
 
-脚本默认把 Excel 文件保存到 `exports/`。
+脚本默认把 Excel 文件保存到当前运行目录的 `exports/`；需要指定其他目录时传 `--out-dir /path/to/exports`。
 
 ## 回复用户
 

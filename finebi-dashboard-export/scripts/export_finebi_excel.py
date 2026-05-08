@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""Export a FineBI public directory dashboard tab to Excel.
+"""导出 FineBI 公共目录仪表板页签为 Excel。
 
-This script uses only Python's standard library. It reads FineBI connection
-details from .env in the project root.
+脚本只使用 Python 标准库，默认从 ~/.config/finebi/.env 读取 FineBI 连接配置。
 """
 
 from __future__ import annotations
@@ -18,21 +17,14 @@ import urllib.parse
 import urllib.request
 from typing import Any
 
-
-def find_project_root() -> pathlib.Path:
-    cwd = pathlib.Path.cwd()
-    for candidate in (cwd, *cwd.parents):
-        if (candidate / ".env").exists():
-            return candidate
-    return cwd
-
-
-PROJECT_ROOT = find_project_root()
-DEFAULT_CONFIG = PROJECT_ROOT / ".env"
-DEFAULT_OUT_DIR = PROJECT_ROOT / "exports"
+DEFAULT_CONFIG = pathlib.Path.home() / ".config" / "finebi" / ".env"
+DEFAULT_OUT_DIR = pathlib.Path.cwd() / "exports"
 
 
 def load_config(path: pathlib.Path, profile: str | None = None) -> dict[str, str]:
+    if not path.exists():
+        raise SystemExit(f"配置文件不存在: {path}")
+
     config: dict[str, str] = {}
     for line in path.read_text(encoding="utf-8").splitlines():
         line = line.strip()
@@ -48,7 +40,7 @@ def load_config(path: pathlib.Path, profile: str | None = None) -> dict[str, str
     required = ["host", "fine_username", "fine_password"]
     missing = [key for key in required if not config.get(key)]
     if missing:
-        raise SystemExit(f".env missing required keys: {', '.join(missing)}")
+        raise SystemExit(f"配置文件 {path} 缺少必要字段: {', '.join(missing)}")
     return config
 
 
@@ -277,13 +269,13 @@ def list_reports(subject_node: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Export FineBI public directory dashboard tab to Excel.")
-    parser.add_argument("--entry", required=True, help="FineBI public directory display name, e.g. 月度复盘表")
-    parser.add_argument("--report", help="Dashboard tab name under the public entry, e.g. 总表")
-    parser.add_argument("--list", action="store_true", help="List candidate dashboard tabs without exporting")
-    parser.add_argument("--config", type=pathlib.Path, default=DEFAULT_CONFIG, help="Path to .env config file")
-    parser.add_argument("--profile", help="FineBI config profile in .env, e.g. cn or jp")
-    parser.add_argument("--out-dir", type=pathlib.Path, default=DEFAULT_OUT_DIR, help="Directory for exported files")
+    parser = argparse.ArgumentParser(description="导出 FineBI 公共目录仪表板页签为 Excel。")
+    parser.add_argument("--entry", required=True, help="FineBI 公共目录展示名，例如：月度复盘表")
+    parser.add_argument("--report", help="公共目录下的仪表板页签名，例如：总表")
+    parser.add_argument("--list", action="store_true", help="只列出可导出的仪表板页签，不导出文件")
+    parser.add_argument("--config", type=pathlib.Path, default=DEFAULT_CONFIG, help="配置文件路径，默认 ~/.config/finebi/.env")
+    parser.add_argument("--profile", help="配置 profile，例如 cn 或 jp")
+    parser.add_argument("--out-dir", type=pathlib.Path, default=DEFAULT_OUT_DIR, help="导出文件目录，默认当前目录下的 exports/")
     args = parser.parse_args()
 
     config = load_config(args.config, args.profile)
