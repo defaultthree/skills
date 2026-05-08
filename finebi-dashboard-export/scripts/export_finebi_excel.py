@@ -18,7 +18,28 @@ import urllib.parse
 import urllib.request
 from typing import Any
 
-PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[4]
+SKILL_NAME = "finebi-dashboard-export"
+
+
+def find_project_root(script_path: pathlib.Path) -> pathlib.Path:
+    resolved_script = script_path.resolve()
+    cwd = pathlib.Path.cwd()
+    if (cwd / ".env").exists():
+        return cwd
+
+    parts = resolved_script.parts
+    for index, part in enumerate(parts):
+        if part == ".cursor" and parts[index : index + 3] == (".cursor", "skills", SKILL_NAME):
+            return pathlib.Path(*parts[:index]) if index else pathlib.Path("/")
+
+    skill_dir = resolved_script.parent.parent
+    if skill_dir.name == SKILL_NAME:
+        return skill_dir.parent
+
+    return cwd
+
+
+PROJECT_ROOT = find_project_root(pathlib.Path(__file__))
 DEFAULT_CONFIG = PROJECT_ROOT / ".env"
 DEFAULT_OUT_DIR = PROJECT_ROOT / "exports"
 
