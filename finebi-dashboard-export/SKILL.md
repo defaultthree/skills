@@ -13,6 +13,7 @@ description: 使用 FineBI Web 集成接口导出公共目录仪表板页签为 
 - 导出“月度复盘表”里的“总表”
 - 根据公共目录名称查真实 `reportId`，用于后续调用 Excel 导出接口
 - 批量整理公共目录资源和仪表板页签
+- 查看页签上的筛选组件，并按筛选条件导出页签数据
 - 获取 FineBI 公共数据列表
 - 查看某个公共数据集的字段
 - 分页拉取某个 FineBI 数据集的数据
@@ -78,6 +79,110 @@ FINEBI_JP_PASSWORD=...
 - `dashboard/search` 常返回 `name=仪表板`，这通常只是页签名。
 - Excel 导出接口需要仪表板页签的真实 `reportId`，不是公共目录节点 ID，也不是公共目录节点 `templateId`。
 - 因此，“根据公共目录名称查真实 `reportId`”的用途是先定位可导出的页签，再把该页签 `reportId` 传给 Excel 导出接口。
+
+## 筛选组件和运行时导出
+
+筛选组件有两类常见传参方式：
+
+1. 简单字段筛选可以直接追加到 Excel 导出接口 URL：
+   `GET /webroot/decision/v5/api/dashboard/report/export/excel?reportId=...&字段名=值`
+2. 日期区间、年月、数值区间、文本输入等页面运行时控件通常不会被简单 URL 参数识别，需要模拟页面 UI 导出：
+   `POST /webroot/decision/v5/design/report/data/global/export/excel?engineType=3&reportId=...&entryType=1&operationId=...`
+
+页面运行时控件的位置：
+
+- 打开页签预览页：
+  `GET /webroot/decision/v5/design/report/{reportId}/view`
+- 监听或抓取图表请求：
+  `POST /webroot/decision/v5/design/widget/data`
+- 筛选控件值通常在请求体的：
+  `queryInfo.widgetIdValueMap`
+- UI 里点击“导出 Excel”时，全局导出请求体通常是：
+  `widgets.<widgetId>.queryInfo.widgetIdValueMap`
+
+常见控件类型和值结构：
+
+- 字段下拉或枚举控件：`type=32`
+  ```json
+  {
+    "控件ID": {
+      "type": 32,
+      "filterValues": {
+        "type": 1,
+        "value": ["选中值"],
+        "chooseType": 0,
+        "assist": []
+      }
+    }
+  }
+  ```
+- 数值区间控件：`type=33`
+  ```json
+  {
+    "控件ID": {
+      "type": 33,
+      "filterValues": {
+        "min": "最小值",
+        "max": "最大值",
+        "closeMin": true,
+        "closeMax": false
+      }
+    }
+  }
+  ```
+- 文本或 ID 输入控件：`type=39`
+  ```json
+  {
+    "控件ID": {
+      "type": 39,
+      "filterValues": ["输入值"]
+    }
+  }
+  ```
+- 日期区间控件：`type=48`
+  ```json
+  {
+    "控件ID_start": {
+      "type": 48,
+      "value": {
+        "start": {
+          "type": 1,
+          "value": { "year": 2026, "month": 4, "day": 1 }
+        }
+      }
+    },
+    "控件ID_end": {
+      "type": 48,
+      "value": {
+        "end": {
+          "type": 1,
+          "value": { "year": 2026, "month": 4, "day": 30 }
+        }
+      }
+    },
+    "控件ID": {
+      "type": 48,
+      "value": {
+        "start": {
+          "type": 1,
+          "value": { "year": 2026, "month": 4, "day": 1 }
+        },
+        "end": {
+          "type": 1,
+          "value": { "year": 2026, "month": 4, "day": 30 }
+        }
+      }
+    }
+  }
+  ```
+- 年月控件：`type=51`，结构和字段控件类似，但绑定日期字段的年月粒度。
+
+注意事项：
+
+- `GET /v5/api/dashboard/report/export/excel` 适合无筛选或简单字段参数导出。
+- 对日期区间这类运行时控件，必须抓 UI 导出的 `global/export/excel` POST body；仅在 URL 里拼 `start/end`、字段名或控件 ID 往往不会生效。
+- 同一个筛选控件值会复制到每个被导出的图表组件配置里。
+- 图表组件的 `filterValue` 可能用 `filterType` 引用控件 ID，例如日期区间常见 `filterType=58`。
 
 ## 公共数据列表
 
